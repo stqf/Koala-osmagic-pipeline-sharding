@@ -12,7 +12,7 @@ def build(String typeItem, String project, String kItem, String currentTag, Map 
         error "不能支持的类型[$typeItem], 请联系管理员 ... 项目:$project"
     }
     String imageName = item.get("image")
-    String imageItem = "hub.kaolayouran.cn:5000/osmagic-all/$imageName:$currentTag"
+    String imageItem = "$imageName:$currentTag"
     String workspaceItem = "Builds/$kItem"
     String jarItem = sh(script: "basename $tarItem", returnStdout: true).trim()
 
