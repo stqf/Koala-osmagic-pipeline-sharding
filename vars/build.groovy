@@ -25,7 +25,7 @@ def build(String typeItem, String project, String kItem, String currentTag, Map 
         sed "s/JAVA_NAME/$jarItem/g" -i $workspaceItem/Dockerfile
         cd $workspaceItem
         docker build -t $imageItem ./
-        cd ${env.WORKSPACE}};pwd
+        cd ${env.WORKSPACE};pwd
     """
 
     // TODO 推送和移除镜像
