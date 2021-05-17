@@ -1,3 +1,5 @@
+import com.osmagic.pipeline.sharding.utils.CommUtils
+
 def build(String project) {
     String path = "${env.WORKSPACE}/$project"
     def file = new File(path)
@@ -27,12 +29,22 @@ def build(String project) {
     println("Build[$project] finish ... ")
 }
 
-def builds(String[] items) {
+def builds(List projects) {
     def tasks = [:]
-    items.each {
-        tasks."Project[$it]" = {
-            build(it)
-            echo "Project[$it] Bild finish ..."
+    projects.each {
+
+        def nameItem = it.get("project")
+
+        def requireItem = CommUtils.isRequireHandler(nameItem, params)
+        println("Build $nameItem ... requireItem: $requireItem ")
+
+        if (!requireItem) {
+            return
+        }
+
+        tasks."Project[$nameItem]" = {
+            build(nameItem)
+            echo "Project[$nameItem] Bild finish ..."
         }
     }
 
