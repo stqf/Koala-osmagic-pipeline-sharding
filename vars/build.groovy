@@ -31,9 +31,9 @@ def build(String typeItem, String project, String kItem, String currentTag, Map 
     // TODO 推送和移除镜像
     sh """
         docker login -u admin -p Harbor12345 hub.kaolayouran.cn:5000
-        docker tag $imageItem hub.kaolayouran.cn:5000/osmagic-all/$imageName:latest
+        docker tag $imageItem $imageName:latest
         docker push $imageItem
-        docker push hub.kaolayouran.cn:5000/osmagic-all/$imageName:latest
+        docker push $imageName:latest
         docker rmi $imageItem
     """
 
