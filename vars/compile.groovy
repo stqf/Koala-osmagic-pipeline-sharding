@@ -1,6 +1,6 @@
 import com.osmagic.pipeline.sharding.utils.CommUtils
 
-def build(String project) {
+def compile(String project) {
     String path = "${env.WORKSPACE}/$project"
     def file = new File(path)
     def items = file.list()
@@ -26,25 +26,25 @@ def build(String project) {
         println("[$project] Unknown ")
         error "不能识别的项目[$project], 请联系管理员 ... "
     }
-    println("Build[$project] finish ... ")
+    println("Compile[$project] finish ... ")
 }
 
-def builds(List projects) {
+def compiles(List projects) {
     def tasks = [:]
     projects.each {
 
         def nameItem = it.get("project")
 
         def requireItem = CommUtils.isRequireHandler(nameItem, params)
-        println("Build $nameItem ... requireItem: $requireItem ")
+        println("Compile $nameItem ... requireItem: $requireItem ")
 
         if (!requireItem) {
             return
         }
 
         tasks."Project[$nameItem]" = {
-            build(nameItem)
-            echo "Project[$nameItem] Bild finish ..."
+            compile(nameItem)
+            echo "Project[$nameItem] Compile finish ..."
         }
     }
 
