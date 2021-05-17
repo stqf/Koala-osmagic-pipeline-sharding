@@ -1,11 +1,16 @@
 import com.osmagic.pipeline.sharding.utils.CommUtils
 
-def deploy(String project, String pod) {
-    println("Deploy[$project] finish ... podItem：$pod")
+def deploy(String project, String image, String pod) {
+    println("Deploy[$project] finish ... podItem：$pod image:$image")
+    String ipItem = params.get("ServerIp")
+    String psItem = params.get("ServerPs")
+    sh """
+        sshpass -p $psItem sh root@$ipItem  -o StrictHostKeyChecking=no  \\"kubectl set image deployment/$pod $image \\" || true
+    """
 }
 
 
-def deploys(List projects) {
+def deploys(List projects, String currentTag) {
     def tasks = [:]
     projects.each {
 
@@ -26,12 +31,13 @@ def deploys(List projects) {
             if (!requireIt) {
                 return
             }
-
+            String imageName = item.get("image")
+            String imageItem = "$imageName:$currentTag"
             List<String> resourceItems = item.get("resources");
             println("resourceItems ... $resourceItems")
             for (String resourceItem : resourceItems) {
                 tasks."Project[$nameItem::$resourceItem]" = {
-                    deploy(nameItem, resourceItem)
+                    deploy(nameItem, imageItem, resourceItem)
                     echo "Project[$nameItem::$resourceItem] Deploy finish ..."
                 }
             }
