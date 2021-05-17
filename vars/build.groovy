@@ -6,7 +6,7 @@ def build(String typeItem, String project, String kItem, String currentTag, Map 
     if ("Java".equals(typeItem)) {
         tarItem = sh(script: "find ./ -name $regexItem | sort -r | head -n 1", returnStdout: true).trim()
     } else if ("Web".equals(typeItem)) {
-        tarItem = sh(script: "find ./ -name $regexItem | sort | head -n 1", returnStdout: true).trim()
+        tarItem = sh(script: "find ./ -name $regexItem | tail -n 1", returnStdout: true).trim()
     } else {
         tarItem = ""
         error "不能支持的类型[$typeItem], 请联系管理员 ... 项目:$project"
@@ -15,13 +15,14 @@ def build(String typeItem, String project, String kItem, String currentTag, Map 
     String imageItem = "$imageName:$currentTag"
     String workspaceItem = "Builds/$kItem"
     String jarItem = sh(script: "basename $tarItem", returnStdout: true).trim()
+    String podWsItem = sh(script: "find ./devops -name '$typeItem*'", returnStdout: true).trim()
 
     // TODO 构建镜像
     sh """
         mkdir -pv $workspaceItem
         \\cp -avr $tarItem $workspaceItem
-        cat ${env.WORKSPACE}/devops/$typeItem\\_Dockerfie/start.sh > $workspaceItem/start.sh
-        cat ${env.WORKSPACE}/devops/$typeItem\\_Dockerfie/Dockerfile > $workspaceItem/Dockerfile
+        cat ${env.WORKSPACE}/$podWsItem/start.sh > $workspaceItem/start.sh
+        cat ${env.WORKSPACE}/$podWsItem/Dockerfile > $workspaceItem/Dockerfile
         sed "s/JAVA_NAME/$jarItem/g" -i $workspaceItem/Dockerfile
         cd $workspaceItem
         docker build -t $imageItem ./
