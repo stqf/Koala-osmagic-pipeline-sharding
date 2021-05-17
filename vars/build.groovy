@@ -1,6 +1,6 @@
 import com.osmagic.pipeline.sharding.utils.CommUtils
 
-def build(String typeItem, String project, Map item) {
+def build(String typeItem, String project, String kItem, String currentTag, Map item) {
     def tarItem
     def regexItem = item.get("regexItem")
     if ("Java".equals(typeItem)) {
@@ -11,15 +11,36 @@ def build(String typeItem, String project, Map item) {
         tarItem = ""
         error "不能支持的类型[$typeItem], 请联系管理员 ... 项目:$project"
     }
+    String imageName = item.get("image")
+    String imageItem = "hub.kaolayouran.cn:5000/osmagic-all/$imageName:$currentTag"
+    String workspaceItem = "Builds/$kItem"
+    String jarItem = sh(script: "basename $tarItem", returnStdout: true)
 
     // TODO 构建镜像
-    // TODO 推送镜像
-    // TODO 移除镜像
+    sh """
+        mkdir -pv $workspaceItem
+        \\cp -avr $tarItem $workspaceItem
+        cat ${env.WORKSPACE}/devops/$typeItem\\_Dockerfie/start.sh > $workspaceItem/start.sh
+        cat ${env.WORKSPACE}/devops/$typeItem\\_Dockerfie/Dockerfile > $workspaceItem/Dockerfile
+        sed "s/JAVA_NAME/$jarItem/g" -i $workspaceItem/Dockerfile
+        cd $workspaceItem
+        docker build -t $imageItem ./
+        cd ${env.WORKSPACE}};pwd
+    """
+
+    // TODO 推送和移除镜像
+    sh """
+        docker login -u admin -p Harbor12345 hub.kaolayouran.cn:5000
+        docker tag $imageItem hub.kaolayouran.cn:5000/osmagic-all/$imageName:latest
+        docker push $imageItem
+        docker push hub.kaolayouran.cn:5000/osmagic-all/$imageName:latest
+        docker rmi $imageItem
+    """
 
     println("Build[$project] finish ... tarItem：$tarItem")
 }
 
-def builds(List projects) {
+def builds(List projects, String currentTag) {
     def tasks = [:]
     projects.each {
 
@@ -44,7 +65,7 @@ def builds(List projects) {
             }
 
             tasks."Project[$nameItem]" = {
-                build(typeItem, nameItem, item)
+                build(typeItem, nameItem, kItem, currentTag, item)
                 echo "Project[$nameItem] Build finish ..."
             }
         }
