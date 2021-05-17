@@ -12,6 +12,10 @@ def build(String typeItem, String project, Map item) {
         error "不能支持的类型[$typeItem], 请联系管理员 ... 项目:$project"
     }
 
+    // TODO 构建镜像
+    // TODO 推送镜像
+    // TODO 移除镜像
+
     println("Build[$project] finish ... tarItem：$tarItem")
 }
 
