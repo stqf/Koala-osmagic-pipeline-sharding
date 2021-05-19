@@ -61,7 +61,7 @@ pipeline {
                     ]
                 }
 				
-                // 拉取Devops下的Dockerfile用于构建镜像
+                // 拉取Devops项目，用于执行自定义Dockerfile构建镜像或者打整包, 详见Devops说明
                 sh '''
                     if [ -d "devops" ]; then
                         cd devops && git reset --hard HEAD && git checkout master && git pull 
@@ -109,10 +109,46 @@ pipeline {
                 echo "Deploy finish ..."
             }
         }
+        
+        // 打整包时执行,视具体情况斟酌使用
+        stage('Package') {
+            steps {
+                script {
+                    pack.call "产品(项目)名称"
+                }
+                echo "Package finish ..."
+            }
+        }
 
     }
 
 }
 
+```
+
+## Devops项目示例
+
+### 目录结构示例
+
+```
+devops/
+├── JavaDockerfile      --- Java项目
+│   ├── Dockerfile      --- Dockerfile
+│   └── start.sh        --- 容器启动执行命令
+├── Package             --- 打整包
+│   └── main.sh         --- 打整包入口程序
+└── WebDockerfile       --- Web项目
+    ├── Dockerfile      --- Dockerfile
+    └── start.sh        --- 容器启动执行命令
+```
+
+### Dockerfile示例
+
+```dockerfile
+FROM hub.kaolayouran.cn:5000/osmagic-all/jdk:latest
+WORKDIR /home/java
+COPY JAVA_NAME . #JAVA_HOME这个是固定占位符,用于实际执行时候替换目标文件
+COPY start.sh .
+RUN chmod +x start.sh && echo "BUild Time------->>$(date)<<----------" > /root/BUild.log
 ```
 
