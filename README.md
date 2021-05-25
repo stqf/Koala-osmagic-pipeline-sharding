@@ -24,8 +24,12 @@ pipeline {
     }
 
     environment {
-        Koala_osmagic_all_address = "http://192.168.2.xxx/ns/Java/quick.git"  // 项目地址, 格式必须为:项目名_address
-        Koala_osmagic_learn_power_web_address = "http://192.168.2.xxx/ns/Web/quick.git"
+        // 凭证ID(仅UsernamePassword类型)
+        Sauce_Access = credentials('凭证ID') 
+        // 需要认证项目地址示例, 地址变量命名格式必须为:项目名_address
+        Koala_osmagic_all_address = "http://${Sauce_Access}@192.168.2.xxx/ns/Java/quick.git"
+        // 不需要认证项目地址示例, 地址变量命名格式必须为:项目名_address
+        Koala_osmagic_learn_power_web_address = "http://192.168.2.xxx/ns/Web/quick.git" 
     }
 
     stages {
@@ -62,15 +66,15 @@ pipeline {
                 }
 				
                 // 拉取Devops项目，用于执行自定义Dockerfile构建镜像或者打整包, 详见Devops说明
-                sh '''
+                sh """
                     if [ -d "devops" ]; then
                         cd devops && git reset --hard HEAD && git checkout master && git pull 
                         echo "更新代码 ..."
                     else
-                        git clone http://192.168.2.xxx/ns/Devops/Dockerfile.git -b master devops
+                        git clone http://${Sauce_Access}@192.168.2.xxx/ns/Devops/Dockerfile.git -b master devops
                         echo "拉取代码 ..."
                     fi
-                '''
+                """
             }
         }
 
