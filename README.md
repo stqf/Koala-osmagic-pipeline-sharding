@@ -26,6 +26,8 @@ pipeline {
     environment {
         // 凭证ID(仅UsernamePassword类型)
         Sauce_Access = credentials('凭证ID') 
+        // 需要通知钉钉标识ID, 需要Jenkins安装插件支持
+        Koala_osmagic_ding_address = "xxxxxxxx-xxx-xxx-xxx-xxxxxxxx"
         // 需要认证项目地址示例, 地址变量命名格式必须为:项目名_address
         Koala_osmagic_all_address = "http://${Sauce_Access}@192.168.2.xxx/ns/Java/quick.git"
         // 不需要认证项目地址示例, 地址变量命名格式必须为:项目名_address
@@ -124,6 +126,81 @@ pipeline {
             }
         }
 
+    }
+    
+    post {
+        success {
+            script {
+                echo "流水线完成 ... "
+                def commitItem = [:]
+                for(Map deploy: deploies) {
+                    def project = deploy.get("project")
+                    def logs = sh(script: """ cd $project && git log -3 --pretty=format:"%h - [%ad]: %s" --date=format-local:"%m-%d %H:%M:%S" """, returnStdout: true).trim().split("\n")
+                    commitItem."$project" = logs
+                }
+
+                def sbItem = new StringBuilder()
+                def branch = params.get("Koala-osmaigc-all-barnch")
+                commitItem.each {
+                    def kItem = it.key
+                    sbItem.append("**$kItem($branch)**提交记录:   \r\n")
+                    def vItems = it.value
+                    for (String vItem : vItems) {
+                        def item;
+                        if (vItem.length() > 39) {
+                            item = vItem.substring(0, 40)
+                        } else {
+                            item = vItem;
+                        }
+                        sbItem.append("$item   \r\n")
+                    }
+                }
+                // 上面一系列的操作都是为了获取所有项目最近三次的提交记录, 然后赋值给全局变量ctxItem
+                ctxItem = sbItem.toString()
+            }
+            
+            // 参考文档: https://jenkinsci.github.io/dingtalk-plugin/
+            dingtalk(
+                    atAll: true,
+                    type: "MARKDOWN",
+                    title: "你有新的Jenkins消息, 请注意查收",
+                    robot: "${env.Koala_osmagic_ding_address}",
+                    at: ['牛魔王', '黄狮精', '白骨精', '蜘蛛精', '齐天大圣'],
+                    text: [
+                            "# 某某项目终极版本",
+                            "",
+                            "#### 本次构建已经顺利完成, 具体内容详情如下:",
+                            "---",
+                            "${ctxItem}",
+                            "---",
+                            "![SCM](https://ss0.baidu.com/7Po3dSag_xI4khGko9WTAnF6hhy/baike/pic/item/203fb80e7bec54e7a9f8f039bb389b504fc26a85.jpg)", 
+                            "---",
+                            "- 执行人员:  无名氏",
+                            "- 触发类型:  滚动更新",
+                            "- 持续时间:  瞬间完成",
+                            "- 打包类型:  我不告诉您",
+                            "- 构建编号:  8808208820",
+                            "- 任务名称:  一个伟大的梦想",
+                            "- 目标地址:  **${params.ServerIp}**",
+                            "- 构建结果:  构建成功✅✅✅✅✅✅",
+                            "- 构建日志:  [点击查看详情](http://www.taobao.com)",
+                            "---",
+                            "[【更改记录】](http://www.baidu.com) &emsp;&emsp;&emsp; [【Jenkins控制台】](http://www.qq.com)",
+                            "---",
+                            "-------------------我也是有底线的--------------------"
+                    ]
+            )
+        }
+        failure {
+            script {
+                echo "流水线失败 ... "
+            }
+        }
+        aborted {
+            script {
+                echo "流水线中断 ... "
+            }
+        }
     }
 
 }
