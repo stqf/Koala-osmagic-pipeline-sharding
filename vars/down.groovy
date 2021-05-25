@@ -10,6 +10,7 @@ def clone(Map project) {
 
     def branchItem = params.get("Koala-osmaigc-all-barnch")
 
+    /*检出代码的时候,第一次克隆,然后为更新即可*/
     sh """
         if [ -d "$nameItem" ]; then
             cd $nameItem && git reset --hard HEAD && git checkout $branchItem && git pull 
@@ -29,6 +30,7 @@ def clones(List projects) {
         def requireItem = CommUtils.isRequireHandler(nameItem, params)
         println("Clone $nameItem ... requireItem: $requireItem ")
 
+        /*判断是否需要更新项目本地代码*/
         if (!requireItem) {
             return
         }

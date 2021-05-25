@@ -16,7 +16,7 @@ pipeline {
         choice(name: 'Koala-osmaigc-all-barnch', choices: ['dev', 'test', 'master'], description: 'Koala-osmagic-all分支')
 
         string(name: 'ServerIp', defaultValue: 'x.x.x.x', description: ' 服务器地址')
-        string(name: 'ServerPs', defaultValue: '123456', description: ' 服务器密码')
+        password(name: 'ServerPs', defaultValue: '123456', description: ' 服务器root账号密码')
 
         booleanParam(name: '000-build-all-application', defaultValue: false, description: '构建全部应用')
         booleanParam(name: 'A01-Koala-osmagic-all-eureka', defaultValue: false, description: 'Java-Eureka注册中心')
@@ -39,7 +39,9 @@ pipeline {
             steps{
                 script {
                     def strItem = new Date().format("yyyyHHddHHmmss")
-                    currentTag = "$strItem-${env.BUILD_ID}" // 每次构建镜像后的tag
+                    // 每次构建镜像后的tag
+                    currentTag = "$strItem-${env.BUILD_ID}"
+                    // 整个构建流水线的描述数据
                     deploies = [
                         [
                             type: "Java", // 项目类型, 如Java、Web

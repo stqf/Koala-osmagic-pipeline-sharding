@@ -6,11 +6,13 @@ def compile(String project) {
     def items = file.list()
     println("Build[$project] start ... ")
     if (items.contains("pom.xml")) {
+        /*Maven项目编译*/
         println("[$project] Maven ")
         sh """
             cd $project && pwd && mvn package -T 3C 
         """
     } else if (items.contains("build.gradle")) {
+        /*Gradle项目编译*/
         println("[$project] Gradle ")
         def reItem = sh(script: "which gradle", returnStatus: true)
         def bashItem = reItem == 0 ? "gradle" : "bash /var/jenkins_home/gradle-6.8.3/bin/gradle"
@@ -18,6 +20,7 @@ def compile(String project) {
             cd $project && pwd && $bashItem build -x test --parallel
         """
     } else if (items.contains("package.json")) {
+        /*Web项目编译*/
         println("[$project] Web ")
         sh """
             cd $project && pwd && npm install && npm run build
@@ -38,6 +41,7 @@ def compiles(List projects) {
         def requireItem = CommUtils.isRequireHandler(nameItem, params)
         println("Compile $nameItem ... requireItem: $requireItem ")
 
+        /*判断项目是否需要编译*/
         if (!requireItem) {
             return
         }

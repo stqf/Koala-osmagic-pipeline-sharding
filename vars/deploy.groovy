@@ -20,6 +20,7 @@ def deploys(List projects, String currentTag) {
         def requireItem = CommUtils.isRequireHandler(nameItem, params)
         println("Deploy $nameItem ... requireItem: $requireItem ")
 
+        /*判断项目是否需要发布*/
         if (!requireItem) {
             return
         }
@@ -30,6 +31,7 @@ def deploys(List projects, String currentTag) {
             def suffixItem = item.get("name")
             def kItem = suffixItem == null ? nameItem : "$nameItem-$suffixItem"
             def requireIt = CommUtils.isRequireHandler(kItem, params)
+            /*判断项目下某一模块是否需要发布, 主要用于Java多模块项目*/
             if (!requireIt) {
                 return
             }

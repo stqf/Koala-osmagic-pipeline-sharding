@@ -17,7 +17,7 @@ def build(String typeItem, String project, String kItem, String currentTag, Map 
     String jarItem = sh(script: "basename $tarItem", returnStdout: true).trim()
     String podWsItem = sh(script: "find ./devops -name '$typeItem*'", returnStdout: true).trim()
 
-    // TODO 构建镜像
+    /*构建镜像*/
     sh """
         mkdir -pv $workspaceItem
         \\cp -avr $tarItem $workspaceItem
@@ -29,7 +29,7 @@ def build(String typeItem, String project, String kItem, String currentTag, Map 
         cd ${env.WORKSPACE};pwd
     """
 
-    // TODO 推送和移除镜像
+    /*推送和移除镜像*/
     sh """
         docker login -u admin -p Harbor12345 hub.kaolayouran.cn:5000
         docker tag $imageItem $imageName:latest
@@ -51,6 +51,7 @@ def builds(List projects, String currentTag) {
         def requireItem = CommUtils.isRequireHandler(nameItem, params)
         println("Build $nameItem ... requireItem: $requireItem ")
 
+        /*判断项目是否需要Build相应镜像*/
         if (!requireItem) {
             return
         }
@@ -61,11 +62,13 @@ def builds(List projects, String currentTag) {
             def suffixItem = item.get("name")
             def kItem = suffixItem == null ? nameItem : "$nameItem-$suffixItem"
             def requireIt = CommUtils.isRequireHandler(kItem, params)
+            /*判断项目下某一模块是否需要构建镜像, 主要用于Java多模块项目*/
             if (!requireIt) {
                 return
             }
 
             tasks."Project[$nameItem]" = {
+                /*调用Docker镜像构建方法, 传参依次是:项目类型、项目名称、模块名称、镜像TAG、模块描述信息*/
                 build(typeItem, nameItem, kItem, currentTag, item)
                 echo "Project[$nameItem] Build finish ..."
             }
