@@ -1,10 +1,13 @@
 import com.osmagic.pipeline.sharding.utils.CommUtils
 
+import java.util.concurrent.TimeUnit
+
 def deployItem(String project, String image, String resourceItem, String podType) {
     String ipItem = params.get("ServerIp")
     String psItem = params.get("ServerPs")
     String podItem = resourceItem.substring(resourceItem.indexOf("-") + 1)
     String sshItem = "kubectl set image $podType/$resourceItem $podItem=$image"
+    TimeUnit.MILLISECONDS.sleep(new Random().nextInt(1000))
     sh """
         sshpass -p $psItem ssh root@$ipItem  -o StrictHostKeyChecking=no "$sshItem" || true
     """
