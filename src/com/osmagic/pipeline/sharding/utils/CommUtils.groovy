@@ -3,6 +3,14 @@ package com.osmagic.pipeline.sharding.utils
 class CommUtils {
 
     /**
+     * 创建StringBuilder
+     * @return
+     */
+    static StringBuilder createSbItem() {
+        return new StringBuilder();
+    }
+
+    /**
      * 是否需要处理
      * @param name
      * @param params
