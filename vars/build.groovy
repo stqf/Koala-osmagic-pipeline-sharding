@@ -68,9 +68,10 @@ def builds(List projects, String currentTag) {
             }
 
             tasks."Project[$kItem]" = {
+                def kItemSwap = kItem
                 /*调用Docker镜像构建方法, 传参依次是:项目类型、项目名称、模块名称、镜像TAG、模块描述信息*/
-                build(typeItem, nameItem, kItem, currentTag, item)
-                echo "Project[$kItem] Build finish ..."
+                build(typeItem, nameItem, kItemSwap, currentTag, item)
+                echo "Project[$kItemSwap] Build finish ..."
             }
         }
 
