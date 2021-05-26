@@ -52,6 +52,13 @@ pipeline {
                                     regexItem: "*eureka*.jar", 
                                     image: "hub.kaolayouran.cn:5000/osmagic-all/java-01-micro-eureka", // 镜像名称
                                     resources: ["java-01-micro-eureka-01", "java-01-micro-eureka-02", "java-01-micro-eureka-03"] 
+                                ],
+                                [
+                                    name: "themis",
+                                    regexItem: "*themis*.jar",
+                                    podType: "daemonsets", // POD类型, 缺失情况下为deployment
+                                    image: "hub.kaolayouran.cn:5000/osmagic-all/java-07-micro-themis",
+                                    resources: ["java-07-micro-themis"]  
                                 ]
                             ]
                         ], 
