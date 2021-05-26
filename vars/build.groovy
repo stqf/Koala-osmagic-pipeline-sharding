@@ -6,7 +6,7 @@ def build(String typeItem, String project, String kItem, String currentTag, Map 
     if ("Java".equals(typeItem)) {
         tarItem = sh(script: "find ./ -name $regexItem | sort -r | head -n 1", returnStdout: true).trim()
     } else if ("Web".equals(typeItem)) {
-        tarItem = sh(script: "find ./ -name $regexItem | tail -n 1", returnStdout: true).trim()
+        tarItem = sh(script: "find ./$project -name $regexItem | tail -n 1", returnStdout: true).trim()
     } else {
         tarItem = ""
         error "不能支持的类型[$typeItem], 请联系管理员 ... 项目:$project"
