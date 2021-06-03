@@ -20,8 +20,9 @@ def compile(String project) {
             cd $project && pwd && $bashItem build -x test --parallel
         """
     } else if (items.contains("package.json")) {
+        def wctItem = Optional.ofNullable(env.WebCompileType).orElse("npm")
         /*Web项目编译*/
-        println("[$project] Web ")
+        println("[DEBUG] compile web, use type is $wctItem, name is $project")
         sh """
             cd $project && pwd && npm install && npm run build
         """
