@@ -8,10 +8,9 @@ def deployItem(String project, String image, String resourceItem, String podType
     String podItem = resourceItem.substring(resourceItem.indexOf("-") + 1)
     String sshItem = "kubectl set image $podType/$resourceItem $podItem=$image"
     TimeUnit.MILLISECONDS.sleep(new Random().nextInt(1000))
-    sh """
-        sshpass -p $psItem ssh root@$ipItem  -o StrictHostKeyChecking=no "$sshItem" || true
-    """
-    println("Deploy[$project] finish ... podItem：$resourceItem image:$image sshItem:$sshItem")
+    def shItem = "sshpass -p $psItem ssh root@$ipItem  -o StrictHostKeyChecking=no \"$sshItem\" || true"
+    sh "$shItem"
+    println("[DEBUG] deploy pod finish: name is $project, pod is $resourceItem, image is $image, command is '$shItem'")
 }
 
 
@@ -21,7 +20,7 @@ def deploys(List projects, String currentTag) {
 
         def nameItem = it.get("project")
         def requireItem = CommUtils.isRequireHandler(nameItem, params)
-        println("Deploy $nameItem ... requireItem: $requireItem ")
+        println("[TRACE] Deploy project start : name is $nameItem, require is $requireItem ")
 
         /*判断项目是否需要发布*/
         if (!requireItem) {
@@ -49,7 +48,7 @@ def deploys(List projects, String currentTag) {
                 def podTypeSwapItem = podType
                 tasks."Project[$nameItem-$finalItem]Deploy" = {
                     deployItem(nameItem, imageItem, swapItem, podTypeSwapItem)
-                    echo "Project[$nameItem-$finalItem] Deploy finish ..."
+                    println("[INFO ] Deploy project finish: name is $nameItem, image is $imageItem, pod is $finalItem, type is $podTypeSwapItem")
                 }
             }
 

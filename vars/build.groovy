@@ -38,7 +38,7 @@ def build(String typeItem, String project, String kItem, String currentTag, Map 
         docker rmi $imageItem
     """
 
-    println("Build[$project] finish ... tarItem：$tarItem")
+    println("[DEBUG] build modolus finish: name is $project, modolus is $kItem, tarItem：$tarItem, image is $imageItem ")
 }
 
 def builds(List projects, String currentTag) {
@@ -49,7 +49,7 @@ def builds(List projects, String currentTag) {
         String typeItem = it.get("type")
 
         def requireItem = CommUtils.isRequireHandler(nameItem, params)
-        println("Build $nameItem ... requireItem: $requireItem ")
+        println("[TRACE] Build project start : name is $nameItem, require is $requireItem ")
 
         /*判断项目是否需要Build相应镜像*/
         if (!requireItem) {
@@ -72,7 +72,7 @@ def builds(List projects, String currentTag) {
             tasks."Project[$kItemSwap]" = {
                 /*调用Docker镜像构建方法, 传参依次是:项目类型、项目名称、模块名称、镜像TAG、模块描述信息*/
                 build(typeItem, nameItem, kItemSwap, currentTag, itemSwap)
-                echo "Project[$kItemSwap] Build finish ..."
+                println("[INFO ] Build project finish: name is $nameItem, modolus is $kItemSwap ")
             }
         }
 

@@ -14,10 +14,10 @@ def clone(Map project) {
     sh """
         if [ -d "$nameItem" ]; then
             cd $nameItem && git reset --hard HEAD && git checkout $branchItem && git pull 
-            echo "[$nameItem]更新代码 ..."
+            echo "[DEBUG] [$nameItem($branchItem)]更新代码 ... clone "
         else
             git clone $address -b $branchItem
-            echo "[$nameItem]拉取代码 ..."
+            echo "[DEBUG] [$nameItem($branchItem)]拉取代码 ... pull "
         fi
     """
 }
@@ -28,7 +28,7 @@ def clones(List projects) {
         def nameItem = it.get("project")
 
         def requireItem = CommUtils.isRequireHandler(nameItem, params)
-        println("Clone $nameItem ... requireItem: $requireItem ")
+        println("[TRACE] Clone project start : name is $nameItem, require is $requireItem ")
 
         /*判断是否需要更新项目本地代码*/
         if (!requireItem) {
@@ -37,7 +37,7 @@ def clones(List projects) {
 
         tasks."Project[$nameItem]" = {
             clone(it)
-            echo "Project[$nameItem] Clone finish ..."
+            println("[INFO ] Clone project finish: name is $nameItem ")
         }
     }
 
