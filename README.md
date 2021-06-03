@@ -24,7 +24,9 @@ pipeline {
     }
 
     environment {
-        // 凭证ID(仅UsernamePassword类型)
+        // Web编译方式(仅支持npm和yarn类型, 默认npm)
+        WebCompileType = "npm"
+        // 凭证ID(仅支持UsernamePassword类型)
         Sauce_Access = credentials('凭证ID') 
         // 需要通知钉钉标识ID, 需要Jenkins安装插件支持
         Koala_osmagic_ding_address = "xxxxxxxx-xxx-xxx-xxx-xxxxxxxx"
