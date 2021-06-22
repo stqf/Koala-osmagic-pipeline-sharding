@@ -5,12 +5,14 @@ import java.util.concurrent.TimeUnit
 def deployItem(String project, String image, String resourceItem, String podType) {
     String ipItem = params.get("ServerIp")
     String psItem = params.get("ServerPs")
+    String envItem = params.get("Kubernetes")
+    Boolean isK8s = "true".equalsIgnoreCase(envItem)
     String podItem = resourceItem.substring(resourceItem.indexOf("-") + 1)
-    String sshItem = "kubectl set image $podType/$resourceItem $podItem=$image"
+    String sshItem = isK8s ? "kubectl set image $podType/$resourceItem $podItem=$image" : "sh /OsmagicData/Koala-osmagic-cloud-deploy/04Application/docker-compose/update.sh update $resourceItem $image"
     TimeUnit.MILLISECONDS.sleep(new Random().nextInt(1000))
     def shItem = "sshpass -p $psItem ssh root@$ipItem  -o StrictHostKeyChecking=no \"$sshItem\" || true"
     sh "$shItem"
-    println("[DEBUG] deploy pod finish: name is $project, pod is $resourceItem, image is $image, command is '$shItem'")
+    println("[DEBUG] deploy pod finish: name is $project, Kubernetes is $envItem, pod is $resourceItem, image is $image, command is '$shItem'")
 }
 
 
