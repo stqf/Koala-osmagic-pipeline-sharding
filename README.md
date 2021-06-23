@@ -9,10 +9,13 @@ Jenkins[Pipeline]共享库
 ```groovy
 @Library("Koala-osmagic-pipeline-sharding") _
 
+import com.osmagic.pipeline.sharding.utils.CommUtils
+
 pipeline {
     agent any
 
     parameters {
+        choice(name: 'Kubernetes', choices: ['false', 'true'], description: 'Kubernetes环境')
         choice(name: 'Koala-osmaigc-all-barnch', choices: ['dev', 'test', 'master'], description: 'Koala-osmagic-all分支')
 
         string(name: 'ServerIp', defaultValue: 'x.x.x.x', description: ' 服务器地址')
@@ -44,7 +47,7 @@ pipeline {
                     // 每次构建镜像后的tag
                     currentTag = "$strItem-${env.BUILD_ID}"
                     // 整个构建流水线的描述数据
-                    deploies = [
+                    def deploiesSwap = [
                         [
                             type: "Java", // 项目类型, 如Java、Web
                             project: "Koala-osmagic-all", // 项目名称
@@ -58,6 +61,7 @@ pipeline {
                                 [
                                     name: "themis",
                                     regexItem: "*themis*.jar",
+                                    dockerfile: "Dockerfile-gpu", // Dockerfile自定义名称,默认Dockerfile
                                     podType: "daemonsets", // POD类型, 缺失情况下为deployment
                                     image: "hub.kaolayouran.cn:5000/osmagic-all/java-07-micro-themis",
                                     resources: ["java-07-micro-themis"]  
@@ -76,8 +80,11 @@ pipeline {
                             ]
                         ]
                     ]
-                }
 				
+                    deploies = CommUtils.requireHandlerProjects(deploiesSwap, params)
+                    
+                }
+                
                 // 拉取Devops项目，用于执行自定义Dockerfile构建镜像或者打整包, 详见Devops说明
                 sh """
                     if [ -d "devops" ]; then
