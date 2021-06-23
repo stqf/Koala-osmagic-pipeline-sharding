@@ -11,6 +11,8 @@ def build(String typeItem, String project, String kItem, String currentTag, Map 
         tarItem = ""
         error "不能支持的类型[$typeItem], 请联系管理员 ... 项目:$project"
     }
+    def dockerfileItem = item.get("dockerfile")
+    String dockerfileMatchesItem = dockerfileItem == null ? "Dockerfile" : dockerfileItem
     String imageName = item.get("image")
     String imageItem = "$imageName:$currentTag"
     String workspaceItem = "Builds/$kItem"
@@ -22,7 +24,7 @@ def build(String typeItem, String project, String kItem, String currentTag, Map 
         mkdir -pv $workspaceItem
         \\cp -avr $tarItem $workspaceItem
         cat ${env.WORKSPACE}/$podWsItem/start.sh > $workspaceItem/start.sh
-        cat ${env.WORKSPACE}/$podWsItem/Dockerfile > $workspaceItem/Dockerfile
+        cat ${env.WORKSPACE}/$podWsItem/$dockerfileMatchesItem > $workspaceItem/Dockerfile
         sed "s/JAVA_NAME/$jarItem/g" -i $workspaceItem/Dockerfile
         cd $workspaceItem
         docker build -t $imageItem ./
