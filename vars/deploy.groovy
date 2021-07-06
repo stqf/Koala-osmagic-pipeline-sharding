@@ -8,7 +8,7 @@ def deployItem(String project, String image, String resourceItem, String podType
     String envItem = params.get("Kubernetes")
     Boolean isK8s = "true".equalsIgnoreCase(envItem)
     String podItem = resourceItem.substring(resourceItem.indexOf("-") + 1)
-    String sshItem = isK8s ? "kubectl set image $podType/$resourceItem $podItem=$image" : "sh /OsmagicData/Koala-osmagic-cloud-deploy/04Application/docker-compose/update.sh update $resourceItem $image"
+    String sshItem = isK8s ? "kubectl set image $podType/$resourceItem $podItem=$image" : "sh /data/OsmagicData/Koala-osmagic-cloud-deploy/04Application/docker-compose/update.sh update $resourceItem $image"
     TimeUnit.MILLISECONDS.sleep(new Random().nextInt(1000))
     def shItem = "sshpass -p $psItem ssh root@$ipItem  -o StrictHostKeyChecking=no \"$sshItem\" || true"
     sh "$shItem"
