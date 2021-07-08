@@ -20,7 +20,9 @@ def compile(String project) {
         sh "$shItem"
     } else if (items.contains("package.json")) {
         def wctItem = Optional.ofNullable(env.WebCompileType).orElse("npm")
-        def shItem = "cd $project && $wctItem install && $wctItem run build"
+        def wctPrepareItem = Optional.ofNullable(env.WebCompilePrepare).orElse("true")
+        def cnpmShItem = "true" == wctPrepareItem && !items.contains("node_modules") ? " && cnpm install" : ""
+        def shItem = "cd $project $cnpmShItem && $wctItem install && $wctItem run build"
         /*Web项目编译*/
         println("[DEBUG] compile Web : use type is $wctItem, name is $project, command is '$shItem'")
         sh "$shItem"
